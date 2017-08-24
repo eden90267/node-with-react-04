@@ -5,12 +5,15 @@ const io = require('socket.io')(http);
 const path = require('path');
 const config = require('../../webpack.config');
 const webpack = require('webpack');
+const axios = require('axios');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const api = require('./api');
+
 const {post, get} = require('prore');
+
+const config1 = require('../config');
 
 app.use(express.static(path.join(__dirname, '../client')));
 app.use(bodyParser.urlencoded({extended: false}));
@@ -25,28 +28,22 @@ app.use(session({
   resave: false, // don't save session if unmodified
   secret: "eden-liu",
   key: 'auth_token', // cookie name
-  cookie: {maxAge: 1000 * 60 * 60 * 24 * 30}, // 30 days
+  cookie: {maxAge: 1000 * 60 * 60 * 24 * 1}, // 1 day
   store: new MongoStore({
-    url: require('../config').dbURL
+    url: config1.dbURL
   })
 }));
 
-io.on('connection', socket => {
-  console.log('a user connected');
-  // 發表文章
-  socket.on('postArticle', () => {
-    post({
-      host: 'localhost',
-      port: '3001',
-      path: '/getArticle'
-    }, 'hi')
-      .then((data) => {
-        socket.broadcast.emit('updateArticle', JSON.parse(data));
-        socket.emit('updateArticle', JSON.parse(data));
-      });
-  });
-});
+// Redis
+const Redis = require('./redis');
+Redis();
 
+// socket.io
+const socketio = require('./io');
+socketio(io, axios, config1);
+
+// 引入api
+const api = require('./api');
 api.api(app);
 
 
@@ -71,7 +68,6 @@ app.use(webpackHotMiddleware(compiler));
 app.get('*', (req, res) => {
 
   let initialState = {
-    waiting: false,
     todos: [{
       id: 0,
       completed: false,
@@ -81,14 +77,9 @@ app.get('*', (req, res) => {
     article: []
   };
 
-  // 如在Server fetch時用get 會因為在app.get('*')內，造成socket hang up
-  post({
-    host: 'localhost',
-    port: '3001',
-    path: '/getArticle'
-  }, 'hi')
-    .then((data) => {
-      initialState.article = JSON.parse(data);
+  axios.get(`${config1.origin}/getArticle`)// axios在iso server須加上域名
+    .then((response) => {
+      initialState.article = response.data; // axios預設json parse
 
       const store = configureStore(initialState);
       const muiTheme = getMuiTheme({
@@ -114,6 +105,10 @@ app.get('*', (req, res) => {
           res.status(404).send('Not Found');
         }
       });
+    })
+    .catch(err => {
+      console.log(err);
+      res.end(err);
     });
 
   process.on('uncaughtException', function (err) {
@@ -130,7 +125,7 @@ const renderFullPage = (html, preloadedState) => (`
   <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>React Todo List</title>
+  <title>Node with React論壇聊天室</title>
   <link rel="stylesheet" type="text/css" href="/css/reset.css">
   <script src="/socket.io/socket.io.js"></script>
   <script>
