@@ -26,7 +26,7 @@ export default class Navbar extends Component {
   };
 
   toa = () => {
-    browserHistory.push('/a');
+    browserHistory.push('/chatroom');
     this.setState({
       open: false
     });
@@ -46,7 +46,7 @@ export default class Navbar extends Component {
           onRequestChange={(open) => this.setState(open)}
         >
           <MenuItem onTouchTap={this.toArticle}>文章</MenuItem>
-          <MenuItem onTouchTap={this.toa}>Menu Item 2</MenuItem>
+          <MenuItem onTouchTap={this.toa}>在線聊天室</MenuItem>
         </Drawer>
       </div>
     );

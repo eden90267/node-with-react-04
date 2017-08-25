@@ -17,11 +17,16 @@ export function userInfo(state={}, action) {
     case 'LOG_OUT':
       return {
         ...state,
-        account: '',
-        email: '',
-        name: '',
-        avatar: '',
-        login: false
+        account:'',
+        email:'',
+        name:'',
+        avatar:'',
+        RegistedDate: '',
+        mobile: '',
+        address: '',
+        hobby: '',
+        birthday: '',
+        login:false
       };
     default:
       return state;

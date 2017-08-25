@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import actions from "../redux/actions/addArticle";
+import actions from "../redux/actions/article";
 import SimpleDialog from "../components/utils/SimpleDialog";
 import ArticlePostModel from "../components/utils/ArticlePostModal";
 import {RaisedButton} from "material-ui";
