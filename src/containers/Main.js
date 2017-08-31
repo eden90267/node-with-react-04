@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import actions from "../redux/actions/article";
+import {addArticle} from "../redux/actions/article";
 import SimpleDialog from "../components/utils/SimpleDialog";
 import ArticlePostModel from "../components/utils/ArticlePostModal";
 import {RaisedButton} from "material-ui";
 import ArticleBlock from "../components/utils/ArticleBlock/index";
 import ArticleContentModal from "../components/utils/ArticleContentModal";
 import Loading from '../components/utils/Loading';
+import axios from "axios";
+import config from "../config";
 
 
 const style = {
@@ -47,8 +49,17 @@ class Main extends Component {
 
   componentDidMount() {
     const context = this;
-    socket.on('updateArticle', (msg) => {
-      const payload = msg[msg.length - 1];
+
+    axios.post(config.origin + '/getUser', {})
+      .then(response => {
+        socket.emit('mainPage', { // 使用者進入主頁
+          name: response.data.name,
+          account: response.data.account
+        });
+      });
+
+    socket.on('addArticle', (msg) => { // 新增文章後的
+      const payload = msg[0];
       context.props.addArticleAction({
         _id: payload._id,
         title: payload.title,
@@ -56,6 +67,9 @@ class Main extends Component {
         author: payload.posterAccount,
         avatar: payload.avatar,
         date: payload.PostDate,
+        lastModify: payload.PostDate,
+        comments: payload.comments,
+        tag: payload.tag
       });
     });
   }
@@ -64,6 +78,7 @@ class Main extends Component {
   render() {
     return (
       <div style={style.container}>
+        {this.state.loading ? <Loading/> : ''}
         {this.state.dialog ? <SimpleDialog content={this.state.dialogText} context={this}/> : ''}
         {this.state.articlePostModal ? <ArticlePostModel user={this.props.user} context={this}/> : ''}
         {
@@ -90,7 +105,7 @@ class Main extends Component {
             ''
         }
         <div style={{width: '100%', height: '200px'}}>
-          <Loading/>
+
         </div>
       </div>
     );
@@ -107,6 +122,6 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  addArticleAction: actions.addArticle,
+  addArticleAction: addArticle,
 })(Main);
 

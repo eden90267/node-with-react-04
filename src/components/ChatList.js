@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {Avatar, IconButton, List, ListItem} from "material-ui";
 import {grey400} from "material-ui/styles/colors";
 

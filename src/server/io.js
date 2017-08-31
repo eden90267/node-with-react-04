@@ -86,7 +86,7 @@ export const socketio = (io, axios, config1) => {
           const new1 = Object.assign(payload, {[name]: {avatar: res.avatar, name: res.name}});
           Redisclient.set('chatRoomUsersList', JSON.stringify(new1), (err, reply) => {
             socket.emit('chatRoomUsers', {user: new1});
-            socket.broadcast.to('chatPage').emit('chatRoomUser', {user: new1});
+            socket.broadcast.to('chatPage').emit('chatRoomUsers', {user: new1});
             console.log(new1);
           });
         });

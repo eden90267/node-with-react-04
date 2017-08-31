@@ -52,7 +52,9 @@ class Chatroom extends Component {
     if(typeof window !== 'undefined') {
       window.onbeforeunload = myUnloadEvent;
       function myUnloadEvent() {
-        socket.emit('close',document.cookie.replace(/(?:(?:^|.*;\s*)a1\s*\=\s*([^;]*).*$)|^.*$/, "$1")) //$1 表示為match到的第一個參數，可參考https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/n
+        let res = document.cookie.replace(/(?:(?:^|.*;\s*)a1\s*\=\s*([^;]*).*$)|^.*$/, "$1"); // $1 表示為match到的第一個參數，可參考https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/n
+        console.log(res);
+        socket.emit('close', res);
       }
     }
     const context = this;
@@ -63,7 +65,7 @@ class Chatroom extends Component {
             browserHistory.push('/main');
           }
           sweetAlert('請先登入，才能進入聊天室');
-          return
+          return;
         }
         socket.emit('chatPage',{ // 使用者進入聊天室
           avatar: response.data.avatar,

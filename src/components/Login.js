@@ -5,6 +5,7 @@ import axios from 'axios';
 import {RaisedButton, TextField} from "material-ui";
 import SimpleDialog from "./utils/SimpleDialog";
 import actions from "../redux/actions/userInfo";
+import Loading from "./utils/Loading/index";
 
 const style = {
   container: {
@@ -22,7 +23,8 @@ class Login extends Component {
       accountCheck: true,
       passwordCheck: true,
       dialog: false,
-      dialogText: ''
+      dialogText: '',
+      loading: false
     };
   }
 
@@ -45,6 +47,8 @@ class Login extends Component {
   };
 
   sentRequest = () => {
+
+    this.setState({loading: true});
     const context = this; // 因.then會找不到this
     axios
       .post('/login', {
@@ -52,53 +56,65 @@ class Login extends Component {
         password: this.state.password
       })
       .then(response => {
-        context.setState({dialogText: response.data})
-        context.setState({dialog: true});
+        if (response.data.result === -1) {
+          context.setState({dialog: true});
+          context.setState({dialogText: '帳號或密碼錯誤'});
+          return;
+        }
         axios
-          .get('/getUser', {})
+          .post('/getUser', {}) // 這裡如發出get並且在server重啟第一次的情況，getuser的get會延遲，但開devtool disable cache又不會，改成post則沒這問題
           .then(response => {
-            if (typeof response.data === 'string') {
-              return // 如session內無user會回傳空值 type為String
+            context.setState({loading: false});
+            if (response.data.result !== -1) {
+              // login時先把其他登入的裝置登出
+              socket.emit('logout', context.state.account);
+
+              socket.emit('login', response.data);
+              context.props.userInfoAction(response.data);
+              browserHistory.push('/main');
+            } else {
+              context.setState({dialogText: '帳號或密碼錯誤'});
+              context.setState({dialog: true});
             }
-            console.log(response.data);
-            context.props.userInfoAction(response.data);
-            browserHistory.push('/main')
           })
           .catch(error => {
             console.log(error);
           });
       })
-      .catch(function (error) {
+      .catch(error => {
         console.log(error);
       });
   };
 
   render() {
     return (
-      <div style={style.container}>
-        <TextField
-          onBlur={(e) => this.checkAccount(e)}
-          floatingLabelStyle={{color: 'gray'}}
-          hintText="帳號"
-          errorText={this.state.accountCheck ? '' : 'The field is required'}
-          floatingLabelText="帳號"
-        />
-        <br/>
-        <TextField
-          onBlur={(e) => this.checkPassword(e)}
-          floatingLabelStyle={{color: 'gray'}}
-          hintText="密碼"
-          type="password"
-          errorText={this.state.passwordCheck ? '' : 'This field is required'}
-          floatingLabelText="密碼"
-        />
-        <br/>
-        <RaisedButton onClick={() => this.sentRequest()} label="登入" primary={true} style={style.login}/>
-        {this.state.dialog ? <SimpleDialog content={this.state.dialogText} context={this}/> : ''}
-      </div>
+      this.state.loading
+        ?
+        <Loading/>
+        :
+        <div style={style.container}>
+          <TextField
+            onBlur={(e) => this.checkAccount(e)}
+            floatingLabelStyle={{color: 'gray'}}
+            hintText="帳號"
+            errorText={this.state.accountCheck ? '' : 'The field is required'}
+            floatingLabelText="帳號"
+          />
+          <br/>
+          <TextField
+            onBlur={(e) => this.checkPassword(e)}
+            floatingLabelStyle={{color: 'gray'}}
+            hintText="密碼"
+            type="password"
+            errorText={this.state.passwordCheck ? '' : 'This field is required'}
+            floatingLabelText="密碼"
+          />
+          <br/>
+          <RaisedButton onClick={() => this.sentRequest()} label="登入" primary={true} style={style.login}/>
+          {this.state.dialog ? <SimpleDialog content={this.state.dialogText} context={this}/> : ''}
+        </div>
     );
   }
-
 
 }
 
