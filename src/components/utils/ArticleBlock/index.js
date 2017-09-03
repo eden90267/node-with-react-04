@@ -32,6 +32,10 @@ const style = {
     height: '59px',
     marginTop: '20px',
     marginLeft: '20px'
+  },
+  author: {
+    fontSize: '10px',
+    color: 'gray'
   }
 };
 
@@ -39,14 +43,15 @@ const ArticleBlock = (props) => (
   <div style={style.articleContainer}>
     {
       props.articles.map(i => (
-        <div onClick={e => props.articleClick(e, i._id)} className="articleBlock" style={style.article} key={i._id}>
+        <div onClick={e => props.articleClick(e, i._id)} className="articleBlock" style={style.article} key={Math.random()}>
           <div style={style.avatar}>
             <img height="50px" width="60px" src={i.avatar}/>
           </div>
           <div style={style.title}>
-            {i.title}
+            <div>{i.title}</div>
+            <div style={style.author}>作者：{i.author}</div>
           </div>
-          <div style={style.date}>{i.PostDate}</div>
+          <div style={style.date}>最後修改：{i.lastModify}</div>
         </div>
       ))
     }

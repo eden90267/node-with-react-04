@@ -50,7 +50,7 @@ export default class ArticlePostModel extends Component {
     super(...arguments);
     this.state = {
       title: '',
-      content: '',
+      tag: '',
     }
   }
 
@@ -59,7 +59,7 @@ export default class ArticlePostModel extends Component {
   };
 
   contentInput = e => {
-    this.setState({title: e.target.value});
+
   };
 
   handleClose = () => {
@@ -69,21 +69,25 @@ export default class ArticlePostModel extends Component {
   handleConfirm = () => {
     const context = this.props.context;
     this.props.context.setState({articlePostModal: false});
+    this.props.context.setState({loading: true});
     axios
       .post('/postArticle', {
         name: this.props.user.name,
         account: this.props.user.account,
+        content: this.refs.div1.innerHTML,
         title: this.state.title,
-        content: this.state.content,
-        avatar: this.props.user.avatar
+        avatar: this.props.user.avatar,
+        tag: this.state.tag,
       })
       .then(response => {
+        context.setState({loading: true});
         context.setState({dialog: true});
         context.setState({dialogText: response.data});
         socket.emit('postArticle', {data: 'test'});
       })
       .catch(error => {
-        console.log(error);
+        alert(error);
+        context.setState({loading: false});
       });
   };
 
@@ -149,6 +153,7 @@ export default class ArticlePostModel extends Component {
           <div style={{height: '600px'}}>
             <input
               style={style.title}
+              maxLength={15}
               placeholder="請輸入標題"
               onChange={e => this.titleInput(e)}
             />

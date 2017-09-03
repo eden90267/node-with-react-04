@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import axios from 'axios';
 import Header from "./Header";
 import actions from "../redux/actions/userInfo";
+import config from '../config';
 
 const style = {
   content: {
@@ -14,18 +15,23 @@ class App extends Component {
 
   constructor() {
     super(...arguments);
+    this.state = {
+      user: '2343333'
+    };
   }
 
   componentDidMount() {
     const context = this;
-    axios.get('/getUser', {})
-      .then(response => {
-        if (typeof response.data === 'string') {
-          return; // 如session內無user會回傳空值 type為string
+    axios
+      .post(config.origin + '/getUser', {})
+      .then(function (response) {
+        if (response.data.result === -1) {
+          return //未登入
         }
+        socket.emit('login', response.data);
         context.props.userInfoAction(response.data);
       })
-      .catch((error) => {
+      .catch(function (error) {
         console.log(error);
       });
   }
@@ -43,8 +49,10 @@ class App extends Component {
 
 }
 
-function  mapStateToProp(state){
-  return state;
+function mapStateToProp(state) {
+  return {
+    userInfo: state.userInfo
+  };
 }
 
 export default connect(mapStateToProp, {

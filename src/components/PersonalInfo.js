@@ -4,7 +4,7 @@ import {browserHistory} from 'react-router';
 import {findDOMNode} from 'react-dom';
 import axios from 'axios';
 import {RaisedButton, TextField} from "material-ui";
-import SimpleDialog from "./utils/SimpleDialog";
+import SimpleDialog from "./utils/Dialogs/SimpleDialog";
 
 const style = {
   container: {

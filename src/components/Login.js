@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {browserHistory} from 'react-router';
 import axios from 'axios';
 import {RaisedButton, TextField} from "material-ui";
-import SimpleDialog from "./utils/SimpleDialog";
+import SimpleDialog from "./utils/Dialogs/SimpleDialog";
 import actions from "../redux/actions/userInfo";
 import Loading from "./utils/Loading/index";
 

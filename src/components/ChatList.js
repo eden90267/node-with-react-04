@@ -1,5 +1,5 @@
 import React from 'react';
-import {Avatar, IconButton, List, ListItem} from "material-ui";
+import {Avatar, Divider, IconButton, List, ListItem} from "material-ui";
 import {grey400} from "material-ui/styles/colors";
 
 const style = {
@@ -14,7 +14,8 @@ const iconButtonElement = (
   <IconButton
     touch={true}
     tooltip="more"
-    tooltipPosition="bottom-left">
+    tooltipPosition="bottom-left"
+  >
     <MoreVertIcon color={grey400} />
   </IconButton>
 );
@@ -37,6 +38,8 @@ const ChatList = props => (
               <div style={{position: 'relative', top: '15px'}}>{i.date}</div>
             </div>
           </ListItem>
+
+          <Divider inset={true}/>
         </List>
       ))
     }

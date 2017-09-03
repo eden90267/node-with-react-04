@@ -2,11 +2,11 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
 import {addArticle} from "../redux/actions/article";
-import SimpleDialog from "../components/utils/SimpleDialog";
-import ArticlePostModel from "../components/utils/ArticlePostModal";
+import SimpleDialog from "../components/utils/Dialogs/SimpleDialog";
+import ArticlePostModel from "../components/utils/Dialogs/ArticlePostModal";
 import {RaisedButton} from "material-ui";
 import ArticleBlock from "../components/utils/ArticleBlock/index";
-import ArticleContentModal from "../components/utils/ArticleContentModal";
+import ArticleContentModal from "../components/utils/Dialogs/ArticleContentModal";
 import Loading from '../components/utils/Loading';
 import axios from "axios";
 import config from "../config";

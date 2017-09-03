@@ -5,7 +5,8 @@ import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import {darkBlack, grey400} from "material-ui/styles/colors";
 import axios from "axios";
 import Loading from "./utils/Loading/index";
-import ArticleContentModal from "./utils/ArticleContentModal";
+import ArticleContentModal from "./utils/Dialogs/ArticleContentModal";
+import {editArticle} from "../redux/actions/article";
 
 
 const iconButtonElement = (
@@ -48,23 +49,33 @@ class MyArticle extends Component {
     });
   };
 
-  contentInput = e => {
-    this.setState({content: e.target.value});
-    console.log(e);
-  };
+  // contentInput = e => {
+  //   this.setState({content: e.target.value});
+  //   console.log(e);
+  // };
 
   handleConfirm = () => {
+    const contentRef = this.refs.content1.refs.div1.innerHTML;
+    const articleID = this.state.activeArticle._id;
     this.setState({articleContentModal: false});
+    this.setState({loading: true});
     axios
       .put('/updateArticle', {
-        content: this.refs.content1.refs.div1.innerHTML,
-        id: this.state.activeArticle._id
+        content: contentRef,
+        id: articleID
       })
       .then(response => {
-        this.setState({articles: response.data}, () => {
-          console.log(this.state.articles);
-          this.forceUpdate();
+        //更新reducer
+        this.props.editArticle({
+          content: contentRef,
+          id: articleID
         });
+        axios
+          .get('/userArticles/' + this.props.userInfo.account)
+          .then((response) => {
+            this.setState({loading: false});
+            this.setState({articles: response.data});
+          });
       });
   };
 
@@ -73,7 +84,6 @@ class MyArticle extends Component {
       axios
         .get('/userArticles/' + this.props.userInfo.account)
         .then(response => {
-          console.log(response);
           this.setState({articles: response.data});
           this.setState({loading: false});
         });
@@ -149,4 +159,6 @@ const mapStateToProps = state => ({
   articles: state.article
 });
 
-export default connect(mapStateToProps, {})(MyArticle);
+export default connect(mapStateToProps, {
+  editArticle
+})(MyArticle);

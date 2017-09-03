@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 
 import axios from 'axios';
 import {RaisedButton, TextField} from "material-ui";
-import SimpleDialog from "./utils/SimpleDialog";
+import SimpleDialog from "./utils/Dialogs/SimpleDialog";
+import {connect} from "react-redux";
 
 const style = {
   container: {
@@ -32,7 +33,7 @@ class Register extends Component {
 
   checkAccount = e => {
     this.state.account = e.target.value;
-    if (e.target.value === '') {
+    if (e.target.value === '' || e.target.value.length > 12) {
       this.setState({
         accountCheck: false
       });
@@ -45,7 +46,7 @@ class Register extends Component {
 
   checkPassword = e => {
     this.state.password = e.target.value;
-    if (e.target.value === '') {
+    if (e.target.value === '' || e.target.value.length < 6) {
       this.setState({
         passwordCheck: false
       });
@@ -93,6 +94,7 @@ class Register extends Component {
       this.setState({
         checkNickName: false
       });
+      return;
     }
     this.setState({
       checkNickName: true
@@ -116,12 +118,8 @@ class Register extends Component {
         nickName: this.state.nickName,
       })
       .then(response => {
-        context.setState({
-          dialogText: response.data
-        });
-        context.setState({
-          dialog: true
-        });
+        context.setState({dialogText: response.data});
+        context.setState({dialog: true});
       })
       .catch(error => {
         console.log(error);
@@ -185,4 +183,8 @@ class Register extends Component {
 
 }
 
-export default Register;
+const mapStateToProps = state => {
+  return state;
+};
+
+export default connect(mapStateToProps, {})(Register);
